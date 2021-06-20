@@ -1,54 +1,115 @@
 let items = require('../Items')
+const MongoClient = require('mongodb').MongoClient;
 const { v4: uuidv4 } = require('uuid');
 
-const getItems = (request, reply) => {
-    reply.send(items);
+//local url
+// const url = "mongodb://admin:password@localhost:27017"
+
+const getUsers = (req, reply) => {
+    const url = "mongodb://admin:password@mongodb"
+
+    const urlOptions = { useUnifiedTopology: true }
+    MongoClient.connect(url, urlOptions, function (err, db) {
+        if (err) throw err;
+        var dbo = db.db("user-account");
+        dbo.collection("users").find({}, { projection: { _id: 0 } }).toArray(function (err, result) {
+            if (err) throw err;
+            reply.send(JSON.stringify(result))
+            db.close();
+        });
+    });
 }
 
-const getItem = (request, reply) => {
-    const { id } = request.params
+const getUser = (request, reply) => {
+    const id1 = request.params.id;
 
-    const item = items.find((item) => item.id === id)
+    const url = "mongodb://admin:password@mongodb"
 
-    reply.send(item)
+    const urlOptions = { useUnifiedTopology: true }
+
+    MongoClient.connect(url, urlOptions, function (err, db) {
+        if (err) throw err;
+        var dbo = db.db("user-account");
+        dbo.collection("users").find({ id: id1 }).toArray(function (err, result) {
+            if (err) throw err;
+            console.log(`myid is ${id1}`)
+            console.log(`resutl is ${result}`)
+            reply.send(JSON.stringify(result))
+            db.close();
+        });
+    });
 
 }
 
-const addItem = (request, reply) => {
-    const { name } = request.body;
-    const item = {
+const addUser = (req, reply) => {
+    const { name } = req.body;
+    const newUser = {
         id: uuidv4(),
         name
     }
 
-    items = [...items, item]
+    const url = "mongodb://admin:password@mongodb"
 
-    reply.code(201).send(item);
+    const urlOptions = { useUnifiedTopology: true }
+
+    MongoClient.connect(url, urlOptions, function (err, db) {
+        if (err) throw err;
+        var dbo = db.db("user-account");
+        dbo.collection("users").insertOne(newUser, (err, result) => {
+            if (err) throw err;
+            db.close()
+        })
+    });
+
+    reply.code(201).send(newUser);
 }
 
-const deleteItem = (request, reply) => {
-    const { id } = request.params;
 
-    items = items.filter(item => item.id !== id)
+const deleteUser = (request, reply) => {
+    const id1 = request.params.id;
 
-    reply.send({ message: `Item ${id} has been removed` })
+    const url = "mongodb://admin:password@mongodb"
+
+    const urlOptions = { useUnifiedTopology: true }
+
+    MongoClient.connect(url, urlOptions, function (err, db) {
+        if (err) throw err;
+        var dbo = db.db("user-account");
+        dbo.collection("users").deleteOne({ id: id1 }, (err, result) => {
+            if (err) throw err;
+            db.close()
+        })
+    });
+
+    reply.send({ message: `Item ${id1} has been removed` })
 }
 
-const updateItem = (request, reply) => {
-    const { id } = request.params
-    const { name } = request.body
+const updateUser = (request, reply) => {
+    const id1 = request.params.id;
+    const name1 = request.body.name;
 
-    items = items.map(item => (item.id === id ? { id, name } : item))
+    const url = "mongodb://admin:password@mongodb"
 
-    updatedItem = items.find(item => item.id === id)
+    const urlOptions = { useUnifiedTopology: true }
 
-    reply.send(updatedItem);
+    MongoClient.connect(url, urlOptions, function (err, db) {
+        if (err) throw err;
+        var dbo = db.db("user-account");
+        let myQuery = { id: id1 }
+        let newValues = { $set: { id: id1, name: name1 } };
+        dbo.collection("users").updateOne(myQuery, newValues, (err, result) => {
+            if (err) throw err;
+            db.close()
+        })
+    });
+
+    reply.send({ id: id1, name: name1 });
 }
 
 module.exports = {
-    getItems,
-    getItem,
-    addItem,
-    deleteItem,
-    updateItem
+    getUser,
+    addUser,
+    deleteUser,
+    updateUser,
+    getUsers
 }

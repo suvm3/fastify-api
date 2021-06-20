@@ -1,6 +1,10 @@
 const fastify = require('fastify')({ logger: true });
 const PORT = 5001;
 
+let mongoUrlLocal = "mongodb://mongoadmin:secret@localhost:27017";
+
+let mongoClientOptions = { useNewUrlParser: true, useUnifiedTopology: true };
+
 fastify.register(require('fastify-swagger'), {
     exposeRoute: true,
     routePrefix: '/docs',

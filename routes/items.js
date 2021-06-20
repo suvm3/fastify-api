@@ -1,7 +1,7 @@
 const items = require('../Items')
-const { getItems, getItem, addItem, deleteItem, updateItem } = require('../controllers/items')
+const { getUser, addUser, deleteUser, updateUser, getUsers } = require('../controllers/items')
 
-const Item = {
+const User = {
     type: 'object',
     properties: {
         id: { type: 'string' },
@@ -9,28 +9,28 @@ const Item = {
     }
 }
 
-const getItemsOpts = {
+const getUsersOpts = {
     schema: {
         response: {
             200: {
                 type: 'array',
-                items: Item
+                items: User
             },
         },
     },
-    handler: getItems
+    handler: getUsers
 }
 
-const getItemOpts = {
+const getUserOpts = {
     schema: {
         response: {
-            200: Item
+            200: User
         }
     },
-    handler: getItem
+    handler: getUser
 }
 
-const postItemsOpts = {
+const postUserOpts = {
     schema: {
         body: {
             type: 'object',
@@ -40,13 +40,13 @@ const postItemsOpts = {
             },
         },
         response: {
-            201: Item
+            201: User
         }
     },
-    handler: addItem
+    handler: addUser
 }
 
-const deleteItemOpts = {
+const deleteUserOpts = {
     schema: {
         response: {
             200: {
@@ -57,33 +57,34 @@ const deleteItemOpts = {
             }
         }
     },
-    handler: deleteItem
+    handler: deleteUser
 }
 
-const updateItemOpts = {
+const updateUserOpts = {
     schema: {
         response: {
-            200: Item
+            200: User
         }
     },
-    handler: updateItem
+    handler: updateUser
 }
 
 function itemRoutes(fastify, options, done) {
-    //Get all items
-    fastify.get('/items', getItemsOpts)
+
+
+    fastify.get('/users', getUsersOpts)
 
     //Get a single item
-    fastify.get('/items/:id', getItemOpts)
+    fastify.get('/users/:id', getUserOpts)
 
     //Add item
-    fastify.post('/items', postItemsOpts)
+    fastify.post('/users', postUserOpts)
 
     //Delete item
-    fastify.delete('/items/:id', deleteItemOpts)
+    fastify.delete('/users/:id', deleteUserOpts)
 
     //Update item
-    fastify.put('/items/:id', updateItemOpts)
+    fastify.put('/users/:id', updateUserOpts)
 
     done()
 }
